@@ -170,4 +170,49 @@ public class PreferenceUtil {
     public static int getTeleLastCount(){
         return sharedPreferencesToken.getInt("teleLastCount", 0);
     }
+
+    //Skype
+    public static Chat getSkypeChat() {
+        Gson gson = new Gson();
+        String json = sharedPreferencesToken.getString("skype_chat", "");
+        if(json.isEmpty()){
+            return new Chat();
+        }else{
+            Chat chat = gson.fromJson(json, Chat.class);
+            return chat;
+        }
+    }
+
+    public static void setSkypeChat(Chat chat) {
+        SharedPreferences.Editor editor = sharedPreferencesToken.edit();
+
+        if(chat==null){
+            editor.putString("skype_chat", "");
+        }else{
+            Gson gson = new Gson();
+            String json = gson.toJson(chat);
+            editor.putString("skype_chat", json);
+        }
+
+        editor.commit();
+    }
+
+    public static String getSkypeLastIncomingMessage(){
+        return sharedPreferencesToken.getString("skypeIcomingChat", "");
+    }
+
+    public static void setSkypeLastIncomingMessage(String chat){
+        SharedPreferences.Editor editor = sharedPreferencesToken.edit();
+        editor.putString("skypeIcomingChat", chat);
+        editor.commit();
+    }
+    public static void setSkypeLastCount(int count){
+        SharedPreferences.Editor editor = sharedPreferencesToken.edit();
+        editor.putInt("skypeLastCount", count);
+        editor.commit();
+    }
+
+    public static int getSkypeLastCount(){
+        return sharedPreferencesToken.getInt("skypeLastCount", 0);
+    }
 }

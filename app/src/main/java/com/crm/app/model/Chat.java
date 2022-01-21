@@ -14,7 +14,10 @@ public class Chat {
     private String message;
     @Getter @Setter
     private String type;
-
+    @Getter @Setter
+    private String source;
+    @Getter @Setter
+    private String parent;
     public Chat(){
 
     }

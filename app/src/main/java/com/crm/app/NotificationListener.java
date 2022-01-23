@@ -22,7 +22,12 @@ public class NotificationListener extends NotificationListenerService {
         Log.i(TAG, "ID:" + sbn.getId());
         Log.i(TAG, "Posted by:" + sbn.getPackageName());
         NotificationObject no = new NotificationObject(sbn, getApplicationContext());
-        if(no.getText().length() == 0 || no.getTitle().equals("WhatsApp Web") || no.getTitle().equals("WhatsApp")|| !no.getAppName().equals("WhatsApp")){
+        if(no.getText().length() == 0 ||
+                no.getTitle().equals("WhatsApp Web") ||
+                no.getTitle().equals("WhatsApp")||
+                (!no.getAppName().equals("WhatsApp")&&
+                !no.getPackageName().equals("org.telegram.messenger")&&
+                !no.getPackageName().equals("com.skype.raider"))){
             return;
         }
         String appName = no.getAppName();
@@ -36,6 +41,7 @@ public class NotificationListener extends NotificationListenerService {
         chat.setMessage(text);
         chat.setName(title);
         chat.setType("Masuk");
+        chat.setSource(no.getPackageName());
         if(!text.contains("new messages")){
             EventBus.getDefault().post(chat);
         }
